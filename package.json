@@ -1,6 +1,6 @@
 {
   "name": "loopback-component-pubsub",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "description": "A LoopBack component that provides publish/subscribe over WebSockets",
   "main": "index.js",
   "scripts": {
@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "async": "^1.5.2",
+    "debug": "^2.2.0",
     "socket.io": "^1.4.6",
     "socketio-auth": "0.0.5"
   },
@@ -57,5 +58,8 @@
     "tmp": "tmp/loopback-component-pubsub-1.0.18.tgz_1467329703279_0.9718860860448331"
   },
   "directories": {},
-  "_resolved": "https://registry.npmjs.org/loopback-component-pubsub/-/loopback-component-pubsub-1.0.18.tgz"
+  "_resolved": "https://registry.npmjs.org/loopback-component-pubsub/-/loopback-component-pubsub-1.0.18.tgz",
+  "devDependencies": {
+    "eslint": "^3.7.1"
+  }
 }
