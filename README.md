@@ -1,5 +1,3 @@
-[![NPM](https://nodei.co/npm/loopback-component-pubsub.png?stars&downloads)](https://nodei.co/npm/loopback-component-pubsub/) [![NPM](https://nodei.co/npm-dl/loopback-component-pubsub.png)](https://nodei.co/npm/loopback-component-pubsub/)
-
 # LoopBack Component PubSub
 
 A [LoopBack Framework](http://loopback.io) Component that provides publish events over WebSockets.
