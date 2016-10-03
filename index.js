@@ -3,23 +3,32 @@
  * Dependencies
  **/
 var io = require('socket.io'),
-ioAuth = require('socketio-auth'),
-Pubsub = require('./pubsub')
+  ioAuth = require('socketio-auth'),
+  Pubsub = require('./pubsub')
 /**
  * @module LoopBack Component PubSub
  * @author Jonathan Casarrubias <http://twitter.com/johncasarrubias>
  * @description
  * This module integrates LoopBack with Socket IO in order to provide
  * PubSub functionallity.
+ * 
+ * TODO:
+ * 
+ * Clusterize with socket.io adapter
  */
 module.exports = (app, options) => {
   /**
    * Set Default Options
    */
-  options = Object.assign({
-    auth  : true,
-    debug : false 
-  }, options);
+  options = Object.assign({}, options, {
+    auth: true,
+    debug: false,
+    cluster: {
+      enabled    : false,
+      adapter    : 'socket.io-adapter-mongo',
+      datasource : 'mongodb'
+    }
+  });
   /**
    * Set Listener waiting for Http Server
    **/
@@ -31,6 +40,16 @@ module.exports = (app, options) => {
     console.info('RTC server listening at %s', app.get('url').replace('http', 'ws'));
     // Lets create an instance of IO and reference it in app
     var socket = io(server);
+    // Enable Clustering Capabilities
+    if (options.cluster.enabled) {
+      try {
+        let adapter = require(options.cluster.adapter);
+        socket.adapter(adapter(app.datasources[options.cluster.datasource]));
+        console.info('Running in a clustered environment');
+      } catch (err) {
+        throw new Error(err);
+      }
+    }
     // Add a pubsub instanceable module
     app.pubsub = new Pubsub(socket, options);
     // Configure ioAuth
@@ -41,7 +60,7 @@ module.exports = (app, options) => {
           var AccessToken = app.models.AccessToken;
           //verify credentials sent by the client
           var token = AccessToken.find({
-            where: { id: token.id || 0, userId: token.userId || 0 }
+            where: { id: token.id ||  0, userId: token.userId ||  0 }
           }, (err, tokenInstance) => next(err, tokenInstance.length > 0 ? true : false));
         },
         postAuthenticate: () => {
@@ -51,7 +70,7 @@ module.exports = (app, options) => {
         }
       });
     }
-    
+
     socket.on('connection', connection => {
       connection.on('lb-ping', () => connection.emit('lb-pong', new Date().getTime() / 1000));
     });
