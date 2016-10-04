@@ -5,8 +5,11 @@ var debug = require("debug")("lc:pubsub");
 module.exports = function Pubsub(socket) {
   Pubsub.prototype.publish = function publish(options, next) {
     if (options && options.method && options.endpoint && options.data) {
-      if (options.endpoint.match(/\?/))
+
+      if (options.endpoint.match(/\?/)) {
         options.endpoint = options.endpoint.split("?").shift();
+      }
+
       var event = `[${options.method}]${options.endpoint}`;
 
       debug("Sending message to", event);

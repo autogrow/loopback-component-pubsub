@@ -21,9 +21,11 @@ module.exports = (app, options) => {
   /**
    * Set Default Options
    */
-  options = Object.assign({}, options, {
+  options = Object.assign({}, {
     auth: true,
-  });
+  }, options);
+
+  debug("Options from component config:", options);
 
   /**
    * Set Listener waiting for Http Server
@@ -34,7 +36,8 @@ module.exports = (app, options) => {
    * Setup Real Time Communications
    **/
   function start(server) {
-    debug("RTC server listening at %s", app.get("url").replace("http", "ws"));
+    console.log("RTC server listening at %s", app.get("url").replace("http", "ws"));
+
     // Lets create an instance of IO and reference it in app
     var socket = io(server);
 
@@ -42,8 +45,9 @@ module.exports = (app, options) => {
     app.pubsub = new Pubsub(socket, options);
 
     // Configure ioAuth
-    if (options.auth) {
+    if (options.auth === true) {
       debug("RTC authentication mechanism enabled");
+
       ioAuth(socket, {
         authenticate: (ctx, token, next) => {
           var AccessToken = app.models.AccessToken;
@@ -63,7 +67,7 @@ module.exports = (app, options) => {
     }
 
     socket.on("connection", connection => {
-      debug("A new client connected", connection);
+      debug("A new client connected", connection.id);
       connection.on("lb-ping", () => connection.emit("lb-pong", new Date().getTime() / 1000));
     });
   }
