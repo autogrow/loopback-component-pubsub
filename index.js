@@ -41,6 +41,12 @@ module.exports = (app, options) => {
     // Lets create an instance of IO and reference it in app
     var socket = io(server);
 
+    // close the engine to let the app server stop
+    app.on("stopping", () => {
+      debug("Attached server is stopping, closing sockets");
+      socket.engine.close();
+    });
+
     // Add a pubsub instanceable module
     app.pubsub = new Pubsub(socket, options);
 

@@ -64,7 +64,7 @@ Update the start method within the `server/server.js` file as follows:
 
 ```js
 app.start = function() {
-  return server = app.listen(function() {
+  var server = app.listen(function() {
     app.emit('started', server);
     var baseUrl = app.get('url').replace(/\/$/, '');
     console.log('Web server listening at: %s', baseUrl);
@@ -73,6 +73,15 @@ app.start = function() {
       console.log('Browse your REST API at %s%s', baseUrl, explorerPath);
     }
   });
+
+  // hack to tell pubsub that we are stopping
+  server.closeServer = server.close;
+  server.close = function(close) {
+    app.emit("stopping");
+    server.closeServer(close);
+  };
+
+  return server;
 };
 ```
 
@@ -89,7 +98,7 @@ You can subscribe to any valid remote method within your model as follows:
   <script src="/socket.io/socket.io.js"></script>
   <script>
     var client = io('http://localhost:3000');
-        // subscribe for newly created rooms 
+        // subscribe for newly created rooms
         client.on('[POST]/api/rooms', function (room) {
            console.info('Room ', room);
         });
@@ -124,7 +133,7 @@ You can subscribe to any valid remote method within your model as follows:
           console.error('Unauthenticated', res);
         });
       });
-      // subscribe for newly created rooms 
+      // subscribe for newly created rooms
       client.on('[POST]/api/rooms', function (room) {
         console.info('Room ', room);
       });
@@ -132,7 +141,7 @@ You can subscribe to any valid remote method within your model as follows:
       client.on('[POST]/api/rooms/1/messages', function (message) {
         console.info('Message ', message);
       });
-    }); 
+    });
   </script>
 </head>
 <body></body>
