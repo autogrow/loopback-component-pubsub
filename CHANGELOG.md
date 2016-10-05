@@ -1,3 +1,16 @@
+### version 1.0.20
+
+- made passing next to `publish()` optional
+- made method always be set to uppercase
+
+### version 1.0.19
+
+- Discarded clustering functionality switch
+- code tidy up (whitespace, style adjustments etc)
+- fix bug with passed options merging with default options
+- linted code with eslinter
+- added debugging support
+
 ### version 1.0.18
 
 - Implemented Clustering Functionality
