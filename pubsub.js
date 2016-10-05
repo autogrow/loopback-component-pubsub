@@ -6,10 +6,15 @@ module.exports = function Pubsub(socket) {
   Pubsub.prototype.publish = function publish(options, next) {
     if (options && options.method && options.endpoint && options.data) {
 
+      // remove query params from the endpoint
       if (options.endpoint.match(/\?/)) {
         options.endpoint = options.endpoint.split("?").shift();
       }
 
+      // always make the method upper case
+      options.method = options.method.toUpperCase();
+
+      // build the channel that the message will go to
       var event = `[${options.method}]${options.endpoint}`;
 
       debug("Sending message to", event);
@@ -19,7 +24,7 @@ module.exports = function Pubsub(socket) {
       next && next();
     } else {
       debug(options);
-      debug("Error: Option must be an instance of type { method: string, data: object }");
+      debug("Error: Option must be an instance of type { method: string, endpoint: string, data: object }");
       next && next();
     }
   };
