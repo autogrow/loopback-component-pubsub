@@ -242,3 +242,24 @@ describe("websockets", function() {
 ## Debugging
 
 You can get debug output from this library by setting `DEBUG="lc:pubsub"`
+
+## Forking Rationale
+
+Jonathan Casarrubias deprecated his [original repo](https://github.com/mean-expert-official/loopback-component-pubsub)
+on the 4th of October 2016, [stating that](https://github.com/mean-expert-official/loopback-component-pubsub/issues/14)
+(paraphrasing) loopback limitiations hinder the pubsub pattern as he could only
+hook on remoteHooks and not op hooks meaning you need to make and HTTP request to
+fire an event.  He has made a [new module](https://github.com/mean-expert-official/loopback-component-realtime)
+that contains the same pubsub functionality with other faster types of realtime
+communications.
+
+However, I had problems implementing his new library and found this library to be
+very close to working for my use case.  Now with the changes I have made it seems
+to be great for my use case.  I also find his new module to have more moving parts
+than I would like, whereas this module is quite small and easy to maintain.  I may
+come accross the limitations that he mentioned, but for now this module scratches
+an itch just fine, and I have been able to publish via other methods that remoteHooks.
+
+## License
+
+The license is MIT
