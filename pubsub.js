@@ -16,11 +16,11 @@ module.exports = function Pubsub(socket) {
       debug("message", options.data);
 
       socket.emit(event, options.data);
-      next();
+      next && next();
     } else {
       debug(options);
       debug("Error: Option must be an instance of type { method: string, data: object }");
-      next();
+      next && next();
     }
   };
 };
