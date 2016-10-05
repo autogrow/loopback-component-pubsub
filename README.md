@@ -4,19 +4,19 @@ A [LoopBack Framework](http://loopback.io) Component that provides publish event
 
 This module will provide publish/subscribe functionality for [LoopBack Framework](http://loopback.io) Models that implements the `PubSub Mixin`.
 
-# Publish Subscribe
+## Publish Subscribe
 
 The publish/subscribe pattern allow clients to subscribe to specific events, listening for data streams a server publish everytime there are new changes.
 
 ![Publish Subscribe Pattern](https://blog.gopheracademy.com/postimages/plumbing-and-semantics/pub-sub.jpg)
 
-# Installation
+## Installation
 
 ```sh
 $ npm install --save loopback-component-pubsub
 ```
 
-# Setup Module
+## Setup in your application
 
 Update the  `server/component-config.json` as follows:
 
@@ -46,20 +46,6 @@ Update the  `server/model-config.json` as follows:
 }
 ```
 
-# Configure Models
-
-Thanks to the provided mixin, you are able to define in which Models you want to make available the PubSub functionality by explicitly defining it in the model json file.
-
-```json
-{
-  "mixins": {
-    "PubSub": true
-  }
-}
-```
-
-# Update Server File
-
 Update the start method within the `server/server.js` file as follows:
 
 ```js
@@ -85,9 +71,47 @@ app.start = function() {
 };
 ```
 
-# How to subscribe to events
+## Configure Models
 
-##### Un-Authenticated Vanilla JavaScript Example
+Thanks to the provided mixin, you are able to define in which Models you want to make available the PubSub functionality by explicitly defining it in the model json file.
+
+```json
+{
+  "mixins": {
+    "PubSub": true
+  }
+}
+```
+
+This will push RSET based events out to the following:
+
+* [POST]/accounts
+* [PUT]/accounts/1
+
+## Custom events
+
+You can setup custom endpoint to push data out on like so:
+
+```js
+
+Account.observe("before save", (ctx, next) => {
+
+  if ( ctx && ctx.data && ctx.data.login ) {
+    Account.app.pubsub.publish({
+      method: "put",
+      endpoint: "/api/accounts/"+ctx.where.id+"/logins",
+      data: ctx.data.login
+    });
+  }
+
+  next();
+});
+
+```
+
+## Subscribing to events
+
+### Unauthenticated
 
 You can subscribe to any valid remote method within your model as follows:
 
@@ -110,9 +134,9 @@ You can subscribe to any valid remote method within your model as follows:
 </head>
 <body></body>
 </html>
-````
+```
 
-##### Authenticated Vanilla JavaScript Example
+### Authenticated
 
 You can subscribe to any valid remote method within your model as follows:
 
@@ -146,75 +170,75 @@ You can subscribe to any valid remote method within your model as follows:
 </head>
 <body></body>
 </html>
-````
-
-##### NativeScript2 SDK Example Un-Authenticated
-
-When using the [loopback-sdk-builder](https://www.npmjs.com/package/loopback-sdk-builder)
-
-```js
-import { Component } from "@angular/core";
-import { API_PROVIDERS, LoopBackConfig, RoomApi } from './sdk';
-
-@Component({
-    selector: "my-app",
-    templateUrl: 'path/to/view.html',
-    providers: [ API_PROVIDERS ]
-})
-
-export class AppComponent {
-    constructor(private room: RoomApi) {
-        // or local network IP or public IP/DNS
-        LoopBackConfig.setBaseURL('http://192.168.1.11:3000');
-        LoopBackConfig.setApiVersion('api');
-        room.onCreate().subscribe((res: { id: number | string }) => {
-            alert(res.id);
-        });
-        room.onCreateMessages(1).subscribe((res: { text: string }) => {
-            alert(res.text);
-        });
-    }
-}
-
 ```
 
-##### NativeScript2 SDK Example Authenticated
+## Testing
 
-When using the [loopback-sdk-builder](https://www.npmjs.com/package/loopback-sdk-builder)
+### This library
+
+Coming soon.
+
+### Your API
+
+Install `socket.io-client` first:
+
+    $ npm install --save-dev socket.io-client
+
+Then you write a test like so:
 
 ```js
-import { Component } from "@angular/core";
-import { API_PROVIDERS, LoopBackConfig, UserApi, RoomApi } from './sdk';
+describe("websockets", function() {
+  var io = require("socket.io-client");
 
-@Component({
-    selector: "my-app",
-    templateUrl: 'path/to/view.html',
-    providers: [ API_PROVIDERS ]
-})
+  it("should broadcast new accounts", (done) => {
+    var client = io.connect("http://localhost:8000/");
+    client.on("connect", () => {
 
-export class AppComponent {
-    constructor(private room: RoomApi, private user: UserApi) {
-        // or local network IP or public IP/DNS
-        LoopBackConfig.setBaseURL('http://192.168.1.11:3000');
-        LoopBackConfig.setApiVersion('api');
-        user.login({ email: 'test@test.com', password: 'test' }).subscribe(res => {
-            console.info('User has been authenticated over HTTP', res);
-            room.onCreate().subscribe((res: { id: number | string }) => {
-                alert(res.id);
-            });
-            room.onCreateMessages(1).subscribe((res: { text: string }) => {
-                alert(res.text);
-            });
-        });
-}
+      // subscribe for newly created accounts
+      client.on("[POST]/accounts"), function (acct) {
+        expect(acct).to.have.property("name");
+        expect(acct.name).to.equal("frank");
+        client.close(); // important for multiple WS tests or done() gets called > once
+        done();
+      });
 
+      // trigger the WS event
+      api.post("/accounts")
+      .set("Accept", "application/json")
+      .send({ name: "frank" })
+      .expect(200)
+      .end(() => {});
+
+    });
+  });
+
+  it("should broadcast new logins", (done) => {
+    var client = io.connect("http://localhost:8000/");
+    client.on("connect", () => {
+
+      var loginTime = Date.now()
+
+      // subscribe for new logins
+      client.on("[POST]/accounts/1/logins"), function (login) {
+        expect(login).to.have.property("time");
+        expect(login.time).to.equal(loginTime);
+        client.close(); // important for multiple WS tests or done() gets called > once
+        done();
+      });
+
+      // trigger the WS event
+      api.post("/login")
+      .set("Accept", "application/json")
+      .send({ name: "frank", time: loginTime })
+      .expect(200)
+      .end(() => {});
+
+    });
+
+  });
+});
 ```
 
-# Tutorials
+## Debugging
 
-[The Ultimate Guide for Building Real Time Applications](http://mean.expert/2016/06/09/angular-2-ultimate-real-time/)
-
-# TODO
-
-
-- Implement Clustering Functionality
+You can get debug output from this library by setting `DEBUG="lc:pubsub"`
