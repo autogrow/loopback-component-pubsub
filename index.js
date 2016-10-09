@@ -23,6 +23,8 @@ module.exports = (app, options) => {
    */
   options = Object.assign({}, {
     auth: true,
+    removeApiRoot: true,
+    restApiRoot: app.settings.restApiRoot
   }, options);
 
   debug("Options from component config:", options);

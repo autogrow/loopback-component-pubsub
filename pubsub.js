@@ -2,13 +2,17 @@
 
 var debug = require("debug")("lc:pubsub");
 
-module.exports = function Pubsub(socket) {
+module.exports = function Pubsub(socket, OPTIONS) {
   Pubsub.prototype.publish = function publish(options, next) {
     if (options && options.method && options.endpoint && options.data) {
 
       // remove query params from the endpoint
       if (options.endpoint.match(/\?/)) {
         options.endpoint = options.endpoint.split("?").shift();
+      }
+
+      if ( OPTIONS.removeApiRoot === false ) {
+        options.endpoint = options.endpoint.replace(OPTIONS.restApiRoot);
       }
 
       // always make the method upper case

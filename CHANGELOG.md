@@ -1,3 +1,7 @@
+### Version 1.0.21
+
+- added the option to remove the API root from channels
+
 ### version 1.0.20
 
 - made passing next to `publish()` optional
