@@ -29,8 +29,14 @@ Update the  `server/component-config.json` as follows:
     "auth": true
   }
 }
-
 ```
+The config goes in the objects of the `loopback-component-pubsub` key:
+
+| config | default | description|
+|---|---|---|
+| auth | true | whether to enable websockets authentication |
+| removeApiRoot | true | whether to remove your API base URI from the subscription channel |
+| restApiRoot | `app.settings.restApiRoot` | The API root to remove from the subscription channel |
 
 Update the  `server/model-config.json` as follows:
 
@@ -83,7 +89,7 @@ Thanks to the provided mixin, you are able to define in which Models you want to
 }
 ```
 
-This will push RSET based events out to the following:
+This will push REST based events out to the following:
 
 * [POST]/accounts
 * [PUT]/accounts/1
@@ -99,7 +105,7 @@ Account.observe("before save", (ctx, next) => {
   if ( ctx && ctx.data && ctx.data.login ) {
     Account.app.pubsub.publish({
       method: "put",
-      endpoint: "/api/accounts/"+ctx.where.id+"/logins",
+      endpoint: "/accounts/"+ctx.where.id+"/logins",
       data: ctx.data.login
     });
   }
@@ -123,11 +129,11 @@ You can subscribe to any valid remote method within your model as follows:
   <script>
     var client = io('http://localhost:3000');
         // subscribe for newly created rooms
-        client.on('[POST]/api/rooms', function (room) {
+        client.on('[POST]/rooms', function (room) {
            console.info('Room ', room);
         });
         // subscribe for new messages in the room with Id 1
-        client.on('[POST]/api/rooms/1/messages', function (message) {
+        client.on('[POST]/rooms/1/messages', function (message) {
            console.info('Message ', message);
         });
   </script>
@@ -158,11 +164,11 @@ You can subscribe to any valid remote method within your model as follows:
         });
       });
       // subscribe for newly created rooms
-      client.on('[POST]/api/rooms', function (room) {
+      client.on('[POST]/rooms', function (room) {
         console.info('Room ', room);
       });
       // subscribe for new messages in the room with Id 1
-      client.on('[POST]/api/rooms/1/messages', function (message) {
+      client.on('[POST]/rooms/1/messages', function (message) {
         console.info('Message ', message);
       });
     });
