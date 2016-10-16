@@ -11,8 +11,8 @@ module.exports = function Pubsub(socket, OPTIONS) {
         options.endpoint = options.endpoint.split("?").shift();
       }
 
-      if ( OPTIONS.removeApiRoot === false ) {
-        options.endpoint = options.endpoint.replace(OPTIONS.restApiRoot);
+      if ( OPTIONS.removeApiRoot === true ) {
+        options.endpoint = options.endpoint.replace(OPTIONS.restApiRoot, "");
       }
 
       // always make the method upper case
