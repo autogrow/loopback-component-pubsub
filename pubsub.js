@@ -11,7 +11,7 @@ module.exports = function Pubsub(socket, OPTIONS) {
         options.endpoint = options.endpoint.split("?").shift();
       }
 
-      if ( OPTIONS.removeApiRoot === false ) {
+      if ( OPTIONS.removeApiRoot === true ) {
         options.endpoint = options.endpoint.replace(OPTIONS.restApiRoot);
       }
 

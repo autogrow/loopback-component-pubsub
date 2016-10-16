@@ -1,3 +1,7 @@
+### Version 1.0.22
+
+- fixed inverted logic bug
+
 ### Version 1.0.21
 
 - added the option to remove the API root from channels
