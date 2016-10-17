@@ -1,3 +1,9 @@
+### Version 1.0.23
+
+- fixed remove api endpoint bug
+- add tests
+- change options.restApiRoot to options.apiRoot
+
 ### Version 1.0.22
 
 - fixed inverted logic bug
