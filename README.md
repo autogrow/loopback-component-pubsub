@@ -182,7 +182,21 @@ You can subscribe to any valid remote method within your model as follows:
 
 ### This library
 
-Coming soon.
+Run `npm test`, coverage is low at the moment:
+
+```
+    pubsub bridge
+      ✓ should remove API root
+      ✓ should upcase the method
+      ✓ should send the data
+      when the api root removal is disabled
+        ✓ should not remove the api root
+      when next callback is given
+        ✓ should call next
+
+
+    5 passing (11ms)
+```
 
 ### Your API
 
