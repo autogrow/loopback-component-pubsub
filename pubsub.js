@@ -2,32 +2,34 @@
 
 var debug = require("debug")("lc:pubsub");
 
-module.exports = function Pubsub(socket, OPTIONS) {
-  Pubsub.prototype.publish = function publish(options, next) {
-    if (options && options.method && options.endpoint && options.data) {
+module.exports = function Pubsub(socket, options) {
+  Pubsub.prototype.publish = function publish(msg, next) {
+    debug("told to publish message: ", msg);
+
+    if (msg && msg.method && msg.endpoint && msg.data) {
 
       // remove query params from the endpoint
-      if (options.endpoint.match(/\?/)) {
-        options.endpoint = options.endpoint.split("?").shift();
+      if (msg.endpoint.match(/\?/)) {
+        msg.endpoint = msg.endpoint.split("?").shift();
       }
 
-      if ( OPTIONS.removeApiRoot === true ) {
-        options.endpoint = options.endpoint.replace(OPTIONS.restApiRoot, "");
+      if ( options.removeApiRoot === true ) {
+        msg.endpoint = msg.endpoint.replace(options.apiRoot, "");
       }
 
       // always make the method upper case
-      options.method = options.method.toUpperCase();
+      msg.method = msg.method.toUpperCase();
 
       // build the channel that the message will go to
-      var event = `[${options.method}]${options.endpoint}`;
+      var event = `[${msg.method}]${msg.endpoint}`;
 
       debug("Sending message to", event);
-      debug("message", options.data);
+      debug("message", msg.data);
 
-      socket.emit(event, options.data);
+      socket.emit(event, msg.data);
       next && next();
     } else {
-      debug(options);
+      debug(msg);
       debug("Error: Option must be an instance of type { method: string, endpoint: string, data: object }");
       next && next();
     }

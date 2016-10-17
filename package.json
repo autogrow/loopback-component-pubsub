@@ -4,7 +4,7 @@
   "description": "A LoopBack component that provides publish/subscribe over WebSockets",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/.bin/mocha test/*_test.js"
   },
   "keywords": [
     "IBM",
@@ -21,7 +21,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jonathan-casarrubias/loopback-component-pubsub.git"
+    "url": "git+https://github.com/autogrowsystems/loopback-component-pubsub.git"
   },
   "dependencies": {
     "async": "^1.5.2",
@@ -31,35 +31,22 @@
   },
   "gitHead": "7119e10249d790d61a0e5811f8e51e1a68f776e4",
   "bugs": {
-    "url": "https://github.com/jonathan-casarrubias/loopback-component-pubsub/issues"
+    "url": "https://github.com/autogrowsystems/loopback-component-pubsub/issues"
   },
-  "homepage": "https://github.com/jonathan-casarrubias/loopback-component-pubsub#readme",
-  "_id": "loopback-component-pubsub@1.0.18",
-  "_shasum": "9a4678abbe5c63b5032128e918a109e8ba413b48",
-  "_from": "loopback-component-pubsub@1.0.18",
-  "_npmVersion": "3.3.12",
-  "_nodeVersion": "5.5.0",
-  "_npmUser": {
-    "name": "jcasarrubias",
-    "email": "jcasarrubias@mean.expert"
-  },
-  "dist": {
-    "shasum": "9a4678abbe5c63b5032128e918a109e8ba413b48",
-    "tarball": "https://registry.npmjs.org/loopback-component-pubsub/-/loopback-component-pubsub-1.0.18.tgz"
-  },
+  "homepage": "https://github.com/autogrowsystems/loopback-component-pubsub",
   "maintainers": [
     {
       "name": "jcasarrubias",
       "email": "jcasarrubias@mean.expert"
+    },
+    {
+      "name": "Robert McLeod",
+      "email": "robert@autogrow.com"
     }
   ],
-  "_npmOperationalInternal": {
-    "host": "packages-12-west.internal.npmjs.com",
-    "tmp": "tmp/loopback-component-pubsub-1.0.18.tgz_1467329703279_0.9718860860448331"
-  },
-  "directories": {},
-  "_resolved": "https://registry.npmjs.org/loopback-component-pubsub/-/loopback-component-pubsub-1.0.18.tgz",
   "devDependencies": {
-    "eslint": "^3.7.1"
+    "chai": "^3.5.0",
+    "eslint": "^3.7.1",
+    "mocha": "^3.1.2"
   }
 }
