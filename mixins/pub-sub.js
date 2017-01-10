@@ -3,6 +3,13 @@
 var async = require("async");
 var debug = require("debug")("lc:pubsub");
 
+var shouldIgnoreRequest = function(ctx) {
+  return ctx.req.method === "GET" ||
+    ctx.req.method === "HEAD" ||
+    ctx.req.originalUrl.match(/resetPassword/g) ||
+    ctx.req.originalUrl.match(/log(in|out)/g);
+};
+
 /**
  * @module LoopBack Component PubSub - Mixin -
  * @author Jonathan Casarrubias <@johncasarrubias>
@@ -32,9 +39,7 @@ module.exports = function (Model, options) {
   options = Object.assign({ filters: {} }, options);
 
   Model.afterRemote("**", (ctx, remoteMethodOutput, next) => {
-    if (ctx.req.method === "GET" || ctx.req.method === "HEAD" ||
-      ctx.req.originalUrl.match(/resetPassword/g) ||
-      ctx.req.originalUrl.match(/log(in|out)/g)) return next();
+    if (shouldIgnoreRequest(ctx)) return next();
 
     // If the message event is due link relationships
     if (ctx.methodString.match(/__(link|unlink)__/g)) {
