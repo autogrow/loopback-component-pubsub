@@ -26,7 +26,7 @@ module.exports = (app, options) => {
     auth: true,
     removeApiRoot: true,
     apiRoot: app.settings.restApiRoot,
-    natsUrl: ""
+    natsUrl: process.env.NATS_URL || app.settings.natsUrl || ""
   }, options);
 
   debug("Options from component config:", options);
