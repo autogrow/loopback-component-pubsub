@@ -6,7 +6,8 @@
 var io = require("socket.io"),
   ioAuth = require("socketio-auth"),
   Pubsub = require("./pubsub"),
-  debug = require("debug")("lc:pubsub");
+  debug = require("debug")("lc:pubsub"),
+  NATS = require("nats");
 
 /**
  * @module LoopBack Component PubSub
@@ -24,7 +25,8 @@ module.exports = (app, options) => {
   options = Object.assign({}, {
     auth: true,
     removeApiRoot: true,
-    apiRoot: app.settings.restApiRoot
+    apiRoot: app.settings.restApiRoot,
+    natsUrl: ""
   }, options);
 
   debug("Options from component config:", options);
@@ -42,15 +44,17 @@ module.exports = (app, options) => {
 
     // Lets create an instance of IO and reference it in app
     var socket = io(server);
+    var nats   = buildNatsClient(options);
 
     // close the engine to let the app server stop
     app.on("stopping", () => {
-      debug("Attached server is stopping, closing sockets");
-      socket.engine.close();
+      debug("Attached server is stopping, closing pubsub engines");
+      if ( socket ) socket.engine.close();
+      if ( nats )   nats.close();
     });
 
     // Add a pubsub instanceable module
-    app.pubsub = new Pubsub(socket, options);
+    app.pubsub = new Pubsub(socket, nats, options);
 
     // Configure ioAuth
     if (options.auth === true) {
@@ -79,4 +83,43 @@ module.exports = (app, options) => {
       connection.on("lb-ping", () => connection.emit("lb-pong", new Date().getTime() / 1000));
     });
   }
+};
+
+
+var buildNatsClient = function(options) {
+  if ( options.natsUrl === "" || !options.natsUrl ) {
+    return null;
+  }
+
+  var opts = { url: options.natsUrl };
+
+  if ( options.natsAuth ) {
+    debug("Using nats authentication");
+    opts.user = options.natsAuth.user;
+    opts.pass = options.natsAuth.pass;
+  }
+
+  var nats = NATS.connect(opts);
+
+  nats.on("connect", function() {
+    debug("NATS connected on %s", options.natsUrl);
+  });
+
+  nats.on("error", function(err) {
+    debug("NATS error: %s", err);
+  });
+
+  nats.on("close", function() {
+    debug("NATS connection closed");
+  });
+
+  nats.on("disconnect", function() {
+    debug("NATS was disconnected");
+  });
+
+  nats.on("reconnecting", function() {
+    debug("NATS is reconnecting");
+  });
+
+  return nats;
 };

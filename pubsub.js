@@ -2,7 +2,7 @@
 
 var debug = require("debug")("lc:pubsub");
 
-module.exports = function Pubsub(socket, options) {
+module.exports = function Pubsub(socket, nats, options) {
   Pubsub.prototype.publish = function publish(msg, next) {
     debug("told to publish message: ", msg);
 

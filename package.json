@@ -27,6 +27,7 @@
     "async": "^1.5.2",
     "debug": "^2.2.0",
     "socket.io": "^1.4.6",
+    "nats": "^0.6.8",
     "socketio-auth": "0.0.5"
   },
   "gitHead": "7119e10249d790d61a0e5811f8e51e1a68f776e4",
