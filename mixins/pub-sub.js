@@ -64,6 +64,8 @@ module.exports = function (Model, options) {
             options.filters[ctx.method.name].forFK : {}
         ), (err, res) => {
           if (err) return next(err);
+          debug("sending forward message: relation link/unlink");
+
           Model.app.pubsub.publish({
             method   : ctx.req.method,
             endpoint : original,
@@ -80,6 +82,8 @@ module.exports = function (Model, options) {
             options.filters[ctx.method.name].forPK : {}
         ), (err, res) => {
           if (err) return next(err);
+          debug("sending backward message: relation link/unlink");
+
           Model.app.pubsub.publish({
             method   : ctx.req.method,
             endpoint : "/" + [inverse[0], inverse[3], ctx.req.params.fk, inverse[1], inverse[4]].join("/"),
@@ -90,10 +94,13 @@ module.exports = function (Model, options) {
 
     // Send Direct Message on Create Relation (not linking)
     } else if (ctx.methodString.match(/__(create)__/g)) {
+
       let segments   = ctx.methodString.replace(/__[a-zA-Z]+__/g, "").split(".");
       let current    = segments.shift();
 
       if (options.filters[ctx.method.name]) {
+        debug("sending direct message: create relation with filters", ctx.method.name, options.filters[ctx.method.name]);
+
         let method     = Array.isArray(remoteMethodOutput) ? "find" : "findOne";
 
         let related    = segments.pop().split("");
@@ -121,6 +128,8 @@ module.exports = function (Model, options) {
         });
       } else {
 
+        debug("sending direct message: create relation, no filters");
+
        // Send Direct Message without filters
         Model.app.pubsub.publish({
           method: ctx.req.method,
@@ -147,6 +156,8 @@ module.exports = function (Model, options) {
               return debug("PUBSUB ERROR: Invalid Model Filters", options.filters[ctx.method.name]);
             }
 
+            debug("sending direct message: no relation");
+
             Model.app.pubsub.publish({
               method   : ctx.req.method,
               endpoint : ctx.req.originalUrl,
@@ -155,6 +166,7 @@ module.exports = function (Model, options) {
           }
         );
       } else {
+        debug("sending direct message: no relation, no filters");
 
         // Send Direct Message without filters
         Model.app.pubsub.publish({
