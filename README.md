@@ -16,6 +16,11 @@ The publish/subscribe pattern allow clients to subscribe to specific events, lis
 $ npm install --save loopback-component-pubsub
 ```
 
+## Publishers
+
+There are currently two available publish transports available.  [Socket.IO](http://socket.io) (read: websockets) which cannot be disabled and [NATS](http://nats.io) which is only used when a valid URL
+is found in the `NATS_URL` envvar or in `app.settings.natsUrl`.
+
 ## Setup in your application
 
 Update the  `server/component-config.json` as follows:
@@ -57,21 +62,26 @@ Update the start method within the `server/server.js` file as follows:
 ```js
 app.start = function() {
   var server = app.listen(function() {
-    app.emit('started', server);
+
+    app.emit('started', server);    // <------------ THIS LINE
+
     var baseUrl = app.get('url').replace(/\/$/, '');
     console.log('Web server listening at: %s', baseUrl);
+
     if (app.get('loopback-component-explorer')) {
       var explorerPath = app.get('loopback-component-explorer').mountPath;
       console.log('Browse your REST API at %s%s', baseUrl, explorerPath);
     }
   });
 
+  // *************** THIS BLOCK ********************
   // hack to tell pubsub that we are stopping
   server.closeServer = server.close;
   server.close = function(close) {
     app.emit("stopping");
     server.closeServer(close);
   };
+  // *************** THIS BLOCK ********************
 
   return server;
 };
@@ -93,6 +103,13 @@ This will push REST based events out to the following:
 
 * [POST]/accounts
 * [PUT]/accounts/1
+* [DELETE]/accounts/1
+
+If NATS is enabled, then JSON will be pushed to these subjects:
+
+* POST.accounts
+* PUT.accounts.1
+* DELETE.accounts.1
 
 ## Custom events
 
@@ -104,9 +121,9 @@ Account.observe("before save", (ctx, next) => {
 
   if ( ctx && ctx.data && ctx.data.login ) {
     Account.app.pubsub.publish({
-      method: "put",
+      method:   "put",
       endpoint: "/accounts/"+ctx.where.id+"/logins",
-      data: ctx.data.login
+      data:     ctx.data.login
     });
   }
 
@@ -117,7 +134,7 @@ Account.observe("before save", (ctx, next) => {
 
 ## Subscribing to events
 
-### Unauthenticated
+### Unauthenticated (Socket.IO)
 
 You can subscribe to any valid remote method within your model as follows:
 
@@ -142,7 +159,7 @@ You can subscribe to any valid remote method within your model as follows:
 </html>
 ```
 
-### Authenticated
+### Authenticated (Socket.IO)
 
 You can subscribe to any valid remote method within your model as follows:
 
@@ -185,17 +202,21 @@ You can subscribe to any valid remote method within your model as follows:
 Run `npm test`, coverage is low at the moment:
 
 ```
-    pubsub bridge
-      ✓ should remove API root
-      ✓ should upcase the method
-      ✓ should send the data
-      when the api root removal is disabled
-        ✓ should not remove the api root
-      when next callback is given
-        ✓ should call next
+pubsub bridge
+  ✓ should ignore invalid message (704ms)
+  socket.io client
+    ✓ should remove API root
+    ✓ should upcase the method
+    ✓ should send the data
+    when the api root removal is disabled
+      ✓ should not remove the api root
+  NATS client
+    ✓ should send the data
+    ✓ should build correct subject
+  when next callback is given
+    ✓ should call next
 
-
-    5 passing (11ms)
+8 passing (733ms)
 ```
 
 ### Your API
@@ -268,7 +289,7 @@ You can get debug output from this library by setting `DEBUG="lc:pubsub"`
 Jonathan Casarrubias deprecated his [original repo](https://github.com/mean-expert-official/loopback-component-pubsub)
 on the 4th of October 2016, [stating that](https://github.com/mean-expert-official/loopback-component-pubsub/issues/14)
 (paraphrasing) loopback limitiations hinder the pubsub pattern as he could only
-hook on remoteHooks and not op hooks meaning you need to make and HTTP request to
+hook on remoteHooks and not op hooks meaning you need to make an HTTP request to
 fire an event.  He has made a [new module](https://github.com/mean-expert-official/loopback-component-realtime)
 that contains the same pubsub functionality with other faster types of realtime
 communications.
@@ -278,7 +299,7 @@ very close to working for my use case.  Now with the changes I have made it seem
 to be great for my use case.  I also find his new module to have more moving parts
 than I would like, whereas this module is quite small and easy to maintain.  I may
 come accross the limitations that he mentioned, but for now this module scratches
-an itch just fine, and I have been able to publish via other methods that remoteHooks.
+an itch just fine, and I have been able to publish via other methods than remoteHooks.
 
 ## License
 
