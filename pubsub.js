@@ -10,7 +10,12 @@ module.exports = function Pubsub(socket, nats, options) {
   var publishNats = function(msg) {
     if ( !nats ) return false;
     var subject = parseNatsSubject(msg.method, msg.endpoint);
-    nats.publish(subject, JSON.stringify(msg.data));
+    try {
+      nats.publish(subject, JSON.stringify(msg.data));
+    } catch ( err ) {
+      debug("ERROR: publishing to NATS", err);
+      if ( err.message.includes("Connection closed") ) nats.createConnection();
+    }
   };
 
   var publishSocketIO = function(msg) {
