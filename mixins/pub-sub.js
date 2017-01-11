@@ -45,11 +45,11 @@ module.exports = function (Model, options) {
     if (ctx.methodString.match(/__(link|unlink)__/g)) {
       let segments   = ctx.methodString.replace(/__[a-zA-Z]+__/g, "").split(".");
       let original   = ctx.req.originalUrl.split("/"); original.pop();
-      original   = original.join("/");
+      original       = original.join("/");
       let current    = segments.shift();
       let related    = segments.pop().split("");
-      related[0] = related[0].toUpperCase(); related.pop();
-      related    = related.join("");
+      related[0]     = related[0].toUpperCase(); related.pop();
+      related        = related.join("");
       let inverse    = ctx.req.originalUrl.split("/"); inverse.shift();
 
       // Send Forward and Backward Messages in Parallel
@@ -97,8 +97,8 @@ module.exports = function (Model, options) {
         let method     = Array.isArray(remoteMethodOutput) ? "find" : "findOne";
 
         let related    = segments.pop().split("");
-        related[0] = related[0].toUpperCase(); related.pop();
-        related    = related.join("");
+        related[0]     = related[0].toUpperCase(); related.pop();
+        related        = related.join("");
 
         let query      = Object.assign({
           where: {
