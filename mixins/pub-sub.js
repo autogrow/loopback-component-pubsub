@@ -173,6 +173,16 @@ module.exports = function (Model, options) {
 
       }
 
+    // Send Direct Message on deletion
+    } else if (ctx.req.method === "DELETE" && ctx.hookState && ctx.hookState.destroyed_data ) {
+
+      debug("sending direct message for destroyed model");
+      Model.app.pubsub.publish({
+        method   : ctx.req.method,
+        endpoint : ctx.req.originalUrl,
+        data     : ctx.hookState.destroyed_data
+      }, next);
+
     // Send Direct Message no Relation
     } else {
 
