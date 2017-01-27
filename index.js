@@ -40,7 +40,7 @@ module.exports = (app, options) => {
    * Setup Real Time Communications
    **/
   function start(server) {
-    console.log("RTC server listening at %s", app.get("url").replace("http", "ws"));
+    debug("RTC server listening at %s", app.get("url").replace("http", "ws"));
 
     // Lets create an instance of IO and reference it in app
     var socket = io(server);
