@@ -14,7 +14,6 @@ module.exports = function Pubsub(socket, nats, options) {
       nats.publish(subject, JSON.stringify(msg.data));
     } catch ( err ) {
       debug("ERROR: publishing to NATS", err);
-      if ( err.message.includes("Connection closed") ) nats.createConnection();
     }
   };
 

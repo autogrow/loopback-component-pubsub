@@ -1,3 +1,7 @@
+### 1.1.2
+
+- increase NATS reconnect attempts from 10 to 100, so it should try to reconnect for 200s
+
 ### 1.1.0
 
 - add NATS publishing capability
