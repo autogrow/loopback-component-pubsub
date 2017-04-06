@@ -1,3 +1,8 @@
+### 1.1.3
+
+- fix bug with unused variable
+- made non-explicit close events from the NATS client trigger reconnect loop
+
 ### 1.1.2
 
 - increase NATS reconnect attempts from 10 to 100, so it should try to reconnect for 200s

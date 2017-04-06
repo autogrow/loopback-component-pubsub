@@ -48,7 +48,6 @@ module.exports = (app, options) => {
 
     // close the engine to let the app server stop
     app.on("stopping", () => {
-      stopping = true
       debug("Attached server is stopping, closing pubsub engines");
       if ( socket ) socket.engine.close();
       if ( nats )   nats.close();
@@ -105,9 +104,15 @@ var buildNatsClient = function(options) {
   }
 
   var nats = NATS.connect(opts);
+  var connected = false;
 
   nats.on("connect", function() {
     debug("NATS connected on %s", options.natsUrl);
+    connected = true
+  });
+
+  nats.on("reconnecting", function() {
+    debug("NATS reconnecting on %s", options.natsUrl);
   });
 
   nats.on("reconnect", function() {
@@ -120,6 +125,21 @@ var buildNatsClient = function(options) {
 
   nats.on("close", function() {
     debug("NATS connection closed");
+    connected = false;
+
+    if ( nats.closed ) {
+      debug("the nats connection was closed manually, not reconnecting")
+      return
+    }
+
+    var reconnecter = setInterval(function() {
+      debug("trying to reconnect to NATS");
+      nats.reconnect();
+
+      if ( connected ) {
+        clearInterval(reconnecter)
+      }
+    }, 5000);
   });
 
   nats.on("disconnect", function() {
