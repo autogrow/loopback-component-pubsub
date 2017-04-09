@@ -112,11 +112,7 @@ var buildNatsClient = function(options) {
   });
 
   nats.on("reconnecting", function() {
-    debug("NATS reconnecting on %s", options.natsUrl);
-  });
-
-  nats.on("reconnect", function() {
-    debug("NATS reconnected on %s", options.natsUrl);
+    debug("NATS attempting reconnection to %s", options.natsUrl);
   });
 
   nats.on("error", function(err) {
