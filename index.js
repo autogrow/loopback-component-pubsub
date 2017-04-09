@@ -95,8 +95,7 @@ module.exports = (app, options) => {
 
     var opts = {
       url: options.natsUrl,
-      reconnect: true,
-      maxReconnectAttempts: 30
+      reconnect: true
     };
 
     if ( options.natsAuth ) {
