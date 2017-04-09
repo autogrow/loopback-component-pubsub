@@ -83,67 +83,70 @@ module.exports = (app, options) => {
       connection.on("lb-ping", () => connection.emit("lb-pong", new Date().getTime() / 1000));
     });
   }
-};
 
-
-var buildNatsClient = function(options) {
-  if ( options.natsUrl === "" || !options.natsUrl ) {
-    return null;
-  }
-
-  var opts = {
-    url: options.natsUrl,
-    reconnect: true,
-    maxReconnectAttempts: 30
-  };
-
-  if ( options.natsAuth ) {
-    debug("Using nats authentication");
-    opts.user = options.natsAuth.user;
-    opts.pass = options.natsAuth.pass;
-  }
-
-  var nats = NATS.connect(opts);
-
-  nats.on("connect", function() {
-    debug("NATS connected on %s", options.natsUrl);
-  });
-
-  nats.on("reconnecting", function() {
-    debug("NATS attempting reconnection to %s", options.natsUrl);
-  });
-
-  nats.on("error", function(err) {
-    debug("NATS error: %s", err);
-
-    if ( err.indexOf("ECONNREFUSED") ) {
-      setTimeout(function() {
-        debug("NATS attempting to re-open connection with %s", options.natsUrl)
-        nats.parseOptions(opts);
-        nats.initState();
-        nats.createConnection();
-      }, 2000)
+  // this will build a NATS client and return it, even if it is not connected,
+  // with reconnection and persistent reopening handled via the callbacks available
+  // from the NATS client itself.  Publishes will still work but will fall into
+  // the ether until the connection is re-established
+  var buildNatsClient = function(options) {
+    if ( options.natsUrl === "" || !options.natsUrl ) {
+      return null;
     }
-  });
 
-  nats.on("close", function() {
-    debug("NATS connection closed");
+    var opts = {
+      url: options.natsUrl,
+      reconnect: true,
+      maxReconnectAttempts: 30
+    };
 
-    if ( nats.closed ) return;
+    if ( options.natsAuth ) {
+      debug("Using nats authentication");
+      opts.user = options.natsAuth.user;
+      opts.pass = options.natsAuth.pass;
+    }
 
-    debug("NATS attempting to re-open connection with %s", options.natsUrl)
-    nats.parseOptions(opts);
-    nats.initState();
-    nats.createConnection();
-  });
+    var nats = NATS.connect(opts);
 
-  nats.on("disconnect", function() {
-    debug("NATS was disconnected");
-  });
+    nats.on("connect", function() {
+      debug("NATS connected on %s", options.natsUrl);
+    });
 
-  nats.on("reconnecting", function() {
-    debug("NATS is reconnecting");
-  });
+    nats.on("reconnecting", function() {
+      debug("NATS attempting reconnection to %s", options.natsUrl);
+    });
 
-  return nats;
+    nats.on("error", function(err) {
+      debug("NATS error: %s", err);
+
+      if ( err.indexOf("ECONNREFUSED") ) {
+        setTimeout(function() {
+          debug("NATS attempting to re-open connection with %s", options.natsUrl)
+          nats.parseOptions(opts);
+          nats.initState();
+          nats.createConnection();
+        }, 2000)
+      }
+    });
+
+    nats.on("close", function() {
+      debug("NATS connection closed");
+
+      if ( nats.closed ) return;
+
+      debug("NATS attempting to re-open connection with %s", options.natsUrl)
+      nats.parseOptions(opts);
+      nats.initState();
+      nats.createConnection();
+    });
+
+    nats.on("disconnect", function() {
+      debug("NATS was disconnected");
+    });
+
+    nats.on("reconnecting", function() {
+      debug("NATS is reconnecting");
+    });
+
+    return nats;
+  };
 };
