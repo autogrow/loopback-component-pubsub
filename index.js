@@ -108,6 +108,7 @@ module.exports = (app, options) => {
 
     nats.on("connect", function() {
       debug("NATS connected on %s", options.natsUrl);
+      app.emit("log", {level: "info", msg: "Connection successful", service: "NATS", url: options.natsUrl})
     });
 
     nats.on("reconnecting", function() {
@@ -116,6 +117,7 @@ module.exports = (app, options) => {
 
     nats.on("error", function(err) {
       debug("NATS error: %s", err);
+      app.emit("log", {level: "error", msg: err, service: "NATS", url: options.natsUrl})
 
       if ( err.indexOf("ECONNREFUSED") ) {
         setTimeout(function() {
