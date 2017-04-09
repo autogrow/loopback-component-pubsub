@@ -94,7 +94,7 @@ var buildNatsClient = function(options) {
   var opts = {
     url: options.natsUrl,
     reconnect: true,
-    maxReconnectAttempts: 100
+    maxReconnectAttempts: 30
   };
 
   if ( options.natsAuth ) {
