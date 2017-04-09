@@ -104,11 +104,9 @@ var buildNatsClient = function(options) {
   }
 
   var nats = NATS.connect(opts);
-  var connected = false;
 
   nats.on("connect", function() {
     debug("NATS connected on %s", options.natsUrl);
-    connected = true
   });
 
   nats.on("reconnecting", function() {
@@ -121,7 +119,6 @@ var buildNatsClient = function(options) {
 
   nats.on("close", function() {
     debug("NATS connection closed");
-    connected = false;
 
     if ( nats.closed ) {
       debug("the nats connection was closed manually, not reconnecting")
