@@ -115,24 +115,26 @@ var buildNatsClient = function(options) {
 
   nats.on("error", function(err) {
     debug("NATS error: %s", err);
+
+    if ( err.indexOf("ECONNREFUSED") ) {
+      setTimeout(function() {
+        debug("NATS attempting to re-open connection with %s", options.natsUrl)
+        nats.parseOptions(opts);
+        nats.initState();
+        nats.createConnection();
+      }, 2000)
+    }
   });
 
   nats.on("close", function() {
     debug("NATS connection closed");
 
-    if ( nats.closed ) {
-      debug("the nats connection was closed manually, not reconnecting")
-      return
-    }
+    if ( nats.closed ) return;
 
-    var reconnecter = setInterval(function() {
-      debug("trying to reconnect to NATS");
-      nats.reconnect();
-
-      if ( connected ) {
-        clearInterval(reconnecter)
-      }
-    }, 5000);
+    debug("NATS attempting to re-open connection with %s", options.natsUrl)
+    nats.parseOptions(opts);
+    nats.initState();
+    nats.createConnection();
   });
 
   nats.on("disconnect", function() {
