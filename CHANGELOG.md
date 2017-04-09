@@ -1,3 +1,10 @@
+### 1.2.0
+
+- emit logs from NATS to the app
+- reset NATS reconnect attempts to default since reopen logic is more robust
+- move buildNatsClient inside the exported function
+- refactor NATS logic to reopen after close or initial connect
+
 ### 1.1.3
 
 - fix bug with unused variable
